@@ -1,16 +1,14 @@
 #include <iostream>
-#include <OpenNI.h>
 #include "onimeshfunctions.h"
 
-int main(int argc, char** argv)
+int main(const int argc, const char** argv)
 {
 	// Argument check
-	if (argc < 4)
+	if (argc < 3)
 	{
-		std::cerr << "\nUsage: onimesh <excelOutDir> <pointcloudOutDir> <OniInputFiles>\n"
-			<< "       excelOutDir - Output directory for excel data files\n"
-			<< "  pointCloudOutDir - Output directory for point cloud data files\n"
-			<< "     oniInputFiles - One or more .oni input files\n";
+		std::cerr << "\nUsage: onimesh <outputDir> <OniInputFiles>\n"
+			<< "      outputDir - Output directory for data files\n"
+			<< "  oniInputFiles - One or more .oni input files\n";
 		exit(1);
 	}
 
