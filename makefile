@@ -1,18 +1,33 @@
+TARGET = onimesh
+
 CC = g++
-CFLAGS = -o
-FILES = onimesh.cpp onimeshfunctions.cpp
-DEPS = onimeshfunctions.h
-OUT_EXE = onimesh
+CFLAGS = -o -I.
+LINKER = g++ -o
+LFLAGS = -I. -lm
+
 SRCDIR = src
+OBJDIR = obj
 BINDIR = bin
 
-onimesh: $(SRCDIR)/$(FILES) $(SRCDIR)/$(DEPS)
-	$(CC) $(CFLAGS) $(BINDIR)/$(OUT_EXE) $(SRCDIR)/$(FILES)
-	@echo onimesh compilation complete
+SOURCES  := $(wildcard $(SRCDIR)/*.c)
+INCLUDES := $(wildcard $(SRCDIR)/*.h)
+OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+rm       = rm -f
 
+$(BINDIR)/$(TARGET): $(OBJECTS)
+    @$(LINKER) $@ $(LFLAGS) $(OBJECTS)
+    @echo "Linking complete!"
+
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+    @$(CC) $(CFLAGS) -c $< -o $@
+    @echo "Compiled "$<" successfully!"
+
+.PHONEY: clean
 clean:
-	rm -f *.o core
-	@echo Project has been cleaned
+    @$(rm) $(OBJECTS)
+    @echo "Cleanup complete!"
 
-rebuild: clean all
-	@echo Cleaned and recompiled
+.PHONEY: remove
+remove: clean
+    @$(rm) $(BINDIR)/$(TARGET)
+    @echo "Executable removed!"
