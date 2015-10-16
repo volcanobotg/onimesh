@@ -1,33 +1,10 @@
-TARGET = onimesh
+CPP_FILES := $(wildcard src/*.cpp)
+OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
+LD_FLAGS := ...
+CC_FLAGS := ...
 
-CC = g++
-CFLAGS = -o -I.
-LINKER = g++ -o
-LFLAGS = -I. -lm
+main.exe: $(OBJ_FILES)
+   g++ $(LD_FLAGS) -o $@ $^
 
-SRCDIR = src
-OBJDIR = obj
-BINDIR = bin
-
-SOURCES  := $(wildcard $(SRCDIR)/*.c)
-INCLUDES := $(wildcard $(SRCDIR)/*.h)
-OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
-rm       = rm -f
-
-$(BINDIR)/$(TARGET): $(OBJECTS)
-    @$(LINKER) $@ $(LFLAGS) $(OBJECTS)
-    @echo "Linking complete!"
-
-$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
-    @$(CC) $(CFLAGS) -c $< -o $@
-    @echo "Compiled "$<" successfully!"
-
-.PHONEY: clean
-clean:
-    @$(rm) $(OBJECTS)
-    @echo "Cleanup complete!"
-
-.PHONEY: remove
-remove: clean
-    @$(rm) $(BINDIR)/$(TARGET)
-    @echo "Executable removed!"
+obj/%.o: src/%.cpp
+   g++ $(CC_FLAGS) -c -o $@ $<
