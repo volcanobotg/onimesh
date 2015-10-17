@@ -2,6 +2,7 @@
 
 ### Prerequisites
 * OpenNI2 SDK (version 2.2 beta currently) - http://structure.io/openni
+
 ##### OSX
 1. Download the zipped OSX file
 2. Double click the downloaded file to unzip the folder
@@ -9,6 +10,7 @@
 4. Open a Terminal window
 5. Enter the command `sudo /Applications/OpenNI-MacOSX-x64-2.2/install.sh`
 6. Enter your admin password when prompted to install OpenNI2
+
 ##### Windows
 1. Download both x86 and x64 Windows installers
 2. Double click the downloaded x86 installer
@@ -26,6 +28,7 @@
 4. In Terminal, navigate to the root of the repository
 5. Enter the command `make`
 6. Output binary is located in the "bin" directory
+
 ##### Windows
 1. Clone the onimesh repository to a local drive
 2. Using Visual Studio 2015 open "onimesh.sln" in the root of the repository
