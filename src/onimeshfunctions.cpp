@@ -12,11 +12,15 @@ namespace onimesh
 	/// </summary>
 	std::string getOutputFileName(const char* outputDirectory, const char* inputFile, const char* fileExtension)
 	{
-		// If the input file does not contain a path
-		if (std::string(inputFile).find_last_of('\\') == std::string::npos)
-			return std::string(std::string(outputDirectory) + std::string(inputFile) + std::string(fileExtension));
+		// If the path contains '/' characters
+		if (std::string(inputFile).find_last_of('/') != std::string::npos)
+			return std::string(outputDirectory + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) + std::string(fileExtension));
+		// If the path contains '\' characters
+		else if(std::string(inputFile).find_last_of('\\') == std::string::npos)
+			return std::string(outputDirectory + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) + std::string(fileExtension));
 
-		return std::string(outputDirectory + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) + std::string(".csv"));
+		// Otherwise the input file does not contain a path
+		return std::string(std::string(outputDirectory) + std::string(inputFile) + std::string(fileExtension));
 	}
 
 	/// <summary>
@@ -110,7 +114,7 @@ namespace onimesh
 				}
 				else
 				{
-					std::cout << "Skipping frame " << frameIndex << "\n";
+					//std::cout << "Skipping frame " << frameIndex << "\n";
 				}
 
 				// Break if reading the last frame
