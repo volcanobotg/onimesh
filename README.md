@@ -22,7 +22,8 @@
   2. Double click the downloaded x86 installer
   3. Follow the on screen instructions to install the x86 version
   4. Double click the downloaded x64 installer
-  5. Follow the on screen instructions to install the x64 version 
+  5. Follow the on screen instructions to install the x64 version
+
 ### Building Binaries
 ##### OSX
 1. Clone the onimesh repository to a local drive
