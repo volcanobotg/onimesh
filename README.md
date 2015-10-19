@@ -1,23 +1,28 @@
 # onimesh
 
 ### Prerequisites
-* OpenNI2 SDK (version 2.2 beta currently) - http://structure.io/openni
-
 ##### OSX
-1. Download the zipped OSX file
-2. Double click the downloaded file to unzip the folder
-3. Move the folder to the desired install directory ("/Applications" suggested for minimal build configuration, if installing to a different location use your selected install path in place of "/Applications" in the commands below)
-4. Open a Terminal window
-5. Enter the command `sudo /Applications/OpenNI-MacOSX-x64-2.2/install.sh`
-6. Enter your admin password when prompted to install OpenNI2
+* OpenNI2 SDK (version 2.2 beta currently) - http://structure.io/openni
+  1. Download the zipped OSX file
+  2. Double click the downloaded file to unzip the folder
+  3. Move the folder to the desired install directory ("/Applications" suggested for minimal build configuration, if installing to a different location use your selected install path in place of "/Applications" in the commands below)
+  4. Open a Terminal window
+  5. Enter the command `sudo /Applications/OpenNI-MacOSX-x64-2.2/install.sh`
+  6. Enter your admin password when prompted to install OpenNI2
 
 ##### Windows
-1. Download both x86 and x64 Windows installers
-2. Double click the downloaded x86 installer
-3. Follow the on screen instructions to install the x86 version
-4. Double click the downloaded x64 installer
-5. Follow the on screen instructions to install the x64 version
-
+* OpenNI2 SDK (version 2.2 beta currently) - http://structure.io/openni
+  1. Download both x86 and x64 Windows installers
+  2. Double click the downloaded x86 installer
+  3. Follow the on screen instructions to install the x86 version
+  4. Double click the downloaded x64 installer
+  5. Follow the on screen instructions to install the x64 version
+* Visual C++ Redistributable for Visual Studio 2015 - https://www.microsoft.com/en-us/download/details.aspx?id=48145
+  1.  Download both x86 and x64 Windows installers
+  2. Double click the downloaded x86 installer
+  3. Follow the on screen instructions to install the x86 version
+  4. Double click the downloaded x64 installer
+  5. Follow the on screen instructions to install the x64 version 
 ### Building Binaries
 ##### OSX
 1. Clone the onimesh repository to a local drive
