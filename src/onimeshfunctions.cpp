@@ -29,8 +29,9 @@ namespace onimesh
 	void outputExcel(const int argc, const char** argv)
 	{
 		std::cout << "Start excel data output...\n";
-		const char* outputDirectory = argv[1];
-		char* inputFile;
+		
+        const char* outputDirectory = argv[1];
+        char* inputFile;
 		const int numberInputFiles = argc - 2;
 		openni::Device device;
 		openni::VideoStream ir;
@@ -39,7 +40,14 @@ namespace onimesh
 		int frameHeight, frameWidth;
 		long frameIndex, numberOfFrames;
 		std::ofstream out;
-		openni::OpenNI::initialize();
+        
+        // Initialize openni
+        openni::Status rc = openni::OpenNI::initialize();
+        if (rc != openni::STATUS_OK)
+        {
+            printf("Initialize failed\n%s\n", openni::OpenNI::getExtendedError());
+            exit(2);
+        }
 
 		// Output excel doc for each input file
 		for (int w = 0; w < numberInputFiles; ++w)
@@ -48,21 +56,33 @@ namespace onimesh
 			std::cout << "Working on file " << inputFile << "...\n";
 			
 			// Open the .oni file
-			device.open(inputFile);
-			ir.create(device, openni::SENSOR_DEPTH);
-
+			rc = device.open(inputFile);
+            if (rc != openni::STATUS_OK)
+            {
+                printf("Couldn't open device\n%s\n", openni::OpenNI::getExtendedError());
+                exit(3);
+            }
+            
+            // Create the Video Stream
+			rc = ir.create(device, openni::SENSOR_DEPTH);
+            if (rc != openni::STATUS_OK)
+            {
+                printf("Couldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
+                exit(4);
+            }
+            
 			// Device Check
 			if (!device.isValid())
 			{
-				std::cerr << "\nError opening oni file.\n";
-				exit(2);
+				std::cerr << "\nThe device is not valid.\n";
+				exit(5);
 			}
-
+            
 			// Verify the device is a file
 			if (!device.isFile())
 			{
 				std::cerr << "\nThe device is not a file.\n";
-				exit(3);
+				exit(6);
 			}
 			std::cout << "File open success...\n";
 
@@ -78,11 +98,22 @@ namespace onimesh
 			// Read all frames
 			numberOfFrames = pbc->getNumberOfFrames(ir);
 			std::cout << "Start reading frame data...\n";
-			ir.start();
+			rc = ir.start();
+            if (rc != openni::STATUS_OK)
+            {
+                printf("Couldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
+                exit(7);
+            }
+            
 			while (true)
 			{
 				// Read a frame
-				ir.readFrame(&irf);
+				rc = ir.readFrame(&irf);
+                if (rc != openni::STATUS_OK)
+                {
+                    printf("Read failed!\n%s\n", openni::OpenNI::getExtendedError());
+                    continue;
+                }
 
 				// Verify frame data is valid
 				if (!irf.isValid())
