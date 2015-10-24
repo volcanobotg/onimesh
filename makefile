@@ -1,4 +1,5 @@
 OPENNI2_INCLUDE=/Applications/OpenNI-MacOSX-x64-2.2/Include
+OPENNI2_REDIST=/Applications/OpenNI-MacOSX-x64-2.2/Redist
 OPENNI2_DLIBRARY=/Applications/OpenNI-MacOSX-x64-2.2/Redist/libOpenNI2.dylib
 
 CC=g++
@@ -24,9 +25,11 @@ clean:
 
 $(EXECUTABLE_FILES): $(OBJECT_FILES)
 	$(CC) $(OPENNI2_DLIBRARY) $(LDFLAGS) -o $@ $^
+	rsync -rupE $(OPENNI2_REDIST)/ $(BIN)
 	@echo "Build successful!"
 
 $(OBJECT_FILES): $(OBJ)/%.o: %.cpp
 	@echo Compiling $<
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $<
+
