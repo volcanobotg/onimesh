@@ -15,6 +15,9 @@ int main(const int argc, const char** argv)
 	// Reads oni input and exports data as excel docs
 	onimesh::outputExcel(argc, argv);
 
+	// Uncomment the following line to test creating a dummy point cloud
+	//onimesh::createDummyPointCloud();
+
 	std::cout << "Onimesh output generation complete.\n";
 	exit(0);
 }
