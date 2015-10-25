@@ -14,13 +14,29 @@ namespace onimesh
 	{
 		// If the path contains '/' characters
 		if (std::string(inputFile).find_last_of('/') != std::string::npos)
-			return std::string(outputDirectory + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) + std::string(fileExtension));
+		{
+			// Check if the directory needs a trailing '/'
+			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
+				return std::string(outputDirectory + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) + std::string(fileExtension));
+
+			return std::string(outputDirectory + std::string("/") + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) + std::string(fileExtension));
+		}
 		// If the path contains '\' characters
-		else if(std::string(inputFile).find_last_of('\\') == std::string::npos)
-			return std::string(outputDirectory + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) + std::string(fileExtension));
+		else if (std::string(inputFile).find_last_of('\\') == std::string::npos)
+		{
+			// Check if the directory needs a trailing '\'
+			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
+				return std::string(outputDirectory + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) + std::string(fileExtension));
+
+			return std::string(outputDirectory + std::string("\\") + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) + std::string(fileExtension));
+		}
 
 		// Otherwise the input file does not contain a path
-		return std::string(std::string(outputDirectory) + std::string(inputFile) + std::string(fileExtension));
+		// Check if the directory needs a trailing '/'
+		if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
+			return std::string(std::string(outputDirectory) + std::string(inputFile) + std::string(fileExtension));
+
+		return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile) + std::string(fileExtension));
 	}
 
 	/// <summary>
