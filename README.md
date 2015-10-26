@@ -10,13 +10,33 @@
 5. Enter the command `sudo /Applications/OpenNI-MacOSX-x64-2.2/install.sh`
 6. Enter your admin password when prompted to install OpenNI2
 
+###### Java JDK (required for MacPorts only) - http://www.oracle.com/technetwork/java/javase/downloads/index.html
+1. Navigate to the Java website
+2. Select the Download Java JDK button
+3. Download a JDK for Mac (ex. jdk-8u65-macosx-x64.dmg)
+4. Install the downloaded file
+
+###### Point Cloud Library and PCL Dependencies (version 1.7.2 currently) - http://pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php
+1. Download the appropriate version of MacPorts for your version of OSX here https://distfiles.macports.org/MacPorts/
+2. Install MacPorts with the default installer settings
+3. Open a Terminal window, enter your admin password when prompted
+4. Install XCode Command Line Tools with the command `xcode-select --install` and select Install from the popup
+5. Install CMake with the command `sudo port install cmake`
+6. Install Boost with the command `sudo port install boost`
+7. Install Eigen with the command `sudo port install eigen3`
+8. Install FLANN with the command `sudo port install flann`
+9. Install VTK with the command `sudo port install vtk5 +qt4_mac`
+10. Install Point Cloud Library with the command `sudo port install libpcl`
+
 ##### Windows
 ###### OpenNI2 SDK (version 2.2 beta currently) - http://structure.io/openni
 1. Download both x86 and x64 Windows installers
 2. Install both x86 and x64 installers
+
 ###### Visual C++ Redistributable for Visual Studio 2015 - https://www.microsoft.com/en-us/download/details.aspx?id=48145
 1. Download both x86 and x64 Windows installers
 2. Install both x86 and x64 installers
+
 ###### Point Cloud Library (version 1.7.2 currently) - http://pointclouds.org/
 1. Navigate to this website https://onedrive.live.com/redir?resid=EC9EBB2646FF189A!51248&authkey=!AOPBX-WypndUncw&ithint=file%2cexe
 2. Download the files "PCL-1.7.2-AllInOne-msvc2015-win64" and "PCL-1.7.2-AllInOne-msvc2015-win32"
