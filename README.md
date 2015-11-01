@@ -1,22 +1,25 @@
 # onimesh
 
 ### Prerequisites
-##### OSX
-###### OpenNI2 SDK (version 2.2 beta currently) - http://structure.io/openni
-1. Download the zipped OSX file
-2. Double click the downloaded file to unzip the folder
-3. Move the folder to the desired install directory ("/Applications" suggested for minimal build configuration, if installing to a different location use your selected install path in place of "/Applications" in the commands below)
-4. Open a Terminal window
-5. Enter the command `sudo /Applications/OpenNI-MacOSX-x64-2.2/install.sh`
-6. Enter your admin password when prompted to install OpenNI2
+The following prerequisites must be installed before running or compiling onimesh.
 
-###### Java JDK (required for Homebrew only) - http://www.oracle.com/technetwork/java/javase/downloads/index.html
-1. Navigate to the Java website
+##### OSX
+###### OpenNI2 SDK (version 2.2 beta currently)
+1. Go to the website http://structure.io/openni
+2. Download the zipped OSX file
+3. Double click the downloaded file to unzip the folder
+4. Move the folder to the desired install directory ("/Applications" suggested for minimal build configuration, if installing to a different location use your selected install path in place of "/Applications" in the commands below)
+5. Open a Terminal window
+6. Enter the command `sudo /Applications/OpenNI-MacOSX-x64-2.2/install.sh`
+7. Enter your admin password when prompted to install OpenNI2
+
+###### Java JDK (required for Homebrew only)
+1. Navigate to the website http://www.oracle.com/technetwork/java/javase/downloads/index.html
 2. Select the Download Java JDK button
 3. Download a JDK for Mac (ex. jdk-8u65-macosx-x64.dmg)
 4. Install the downloaded file
 
-###### Point Cloud Library and PCL Dependencies (version 1.7.2 currently) - http://pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php
+###### Point Cloud Library and PCL Dependencies (version 1.7.2 currently)
 1. Open a Terminal window
 2. Install Homebrew with the command `ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 3. Press enter when prompted
@@ -26,26 +29,54 @@
 7. Enter the command `brew install pcl` (this can take a long time to complete)
 
 ##### Windows
-###### OpenNI2 SDK (version 2.2 beta currently) - http://structure.io/openni
-1. Download both x86 and x64 Windows installers
-2. Install both x86 and x64 installers
+###### OpenNI2 SDK (version 2.2 beta currently)
+1. Navigate to the website http://structure.io/openni
+2. Download both x86 and x64 Windows installers
+3. Install both x86 and x64 installers
 
-###### Visual C++ Redistributable for Visual Studio 2015 - https://www.microsoft.com/en-us/download/details.aspx?id=48145
-1. Download both x86 and x64 Windows installers
-2. Install both x86 and x64 installers
+###### Visual C++ Redistributable for Visual Studio 2015
+1. Navigate to the website https://www.microsoft.com/en-us/download/details.aspx?id=48145
+2. Download both x86 and x64 Windows installers
+3. Install both x86 and x64 installers
 
-###### Point Cloud Library (version 1.7.2 currently) - http://pointclouds.org/
-1. Navigate to this website https://onedrive.live.com/redir?resid=EC9EBB2646FF189A!51248&authkey=!AOPBX-WypndUncw&ithint=file%2cexe
-2. Download the files "PCL-1.7.2-AllInOne-msvc2015-win64" and "PCL-1.7.2-AllInOne-msvc2015-win32"
-3. Install both of the downloaded files (these files contain PCL and all PCL dependencies)
+###### Point Cloud Library and PCL Dependencies (version 1.7.2 currently)
+1. Navigate to the website http://www.blue-marble.com/upload/
+2. Download the zip file according to your needs
+
+	`OmDependenciesMinimal.zip` - If you only need to run onimesh (requires ~1.5GB disk space)
+	
+	`OmDependenciesWithPdb.zip` - If you plan on compiling onimesh (requires ~11.5GB disk space)
+
+3. Unzip the contents of the zip file to the root directory of the C drive so that you have the folder structure C:\OmDependencies\msvc_2015_x86\...
+4. Add the following system environment variables
+
+    | Variable Name  | Variable Value |
+    | ------------- | ------------- |
+    | OM_DEPENDENCIES_ROOT  | C:\OmDependencies\msvc_2015_x86 |
+    | OM_DEPENDENCIES_ROOT64  | C:\OmDependencies\msvc_2015_x64 |
+
+5. Add the following to the end of your system "Path" variable:
+
+	`;%OM_DEPENDENCIES_ROOT%\PCL\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\VTK\bin;%OM_DEPENDENCIES_ROOT64%\PCL\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\VTK\bin`
 
 ### Building Binaries
+onimesh is built with the following dependencies
+* OpenNI2 2.2
+* Point Cloud Library 1.7.2
+  * Boost 1.57.0
+  * Eigen 3.2.4
+  * FLANN 1.8.4
+  * QHull 2012.1
+  * VTK 6.3.0
+    * Qt 5.5.1
+
 ##### OSX
 1. Install all OSX prerequisites above
 2. Clone the onimesh repository to a local drive
 3. If you didn't install OpenNI2 to "/Applications" you will need to edit the makefile lines below with your install path:
 
     `OPENNI2_INCLUDE=/OpenNI2InstallPath/Include`
+	
     `OPENNI2_DLIBRARY=/OpenNI2InstallPath/Redist/libOpenNI2.dylib`
 
 4. Open a Terminal window
@@ -54,22 +85,11 @@
 7. Output binary is located in the "bin" directory
 
 ##### Windows
-1. Install all Windows prerequisites above
-2. Add the following system environment variables
-
-    | Variable Name  | Variable Value |
-    | ------------- | ------------- |
-    | PCL_ROOT  | C:\Program Files (x86)\PCL 1.7.2 |
-    | PCL_ROOT64  | C:\Program Files\PCL 1.7.2 |
-
-3. Add the following to the end of your "Path" variable:
-
-    `;%PCL_ROOT%\bin;%PCL_ROOT%\3rdParty\FLANN\bin;%PCL_ROOT%\3rdParty\VTK\bin;%PCL_ROOT64%\bin;%PCL_ROOT64%\3rdParty\FLANN\bin;%PCL_ROOT64%\3rdParty\VTK\bin`
-
-4. Clone the onimesh repository to a local drive
-5. Using Visual Studio 2015 open "onimesh.sln" in the root of the repository
-6. Select the "Build" button
-7. Output binary is located in the target directory
+1. Install all Windows prerequisites above being sure to select the OmDependenciesWithPdb.zip
+2. Clone the onimesh repository to a local drive
+3. Using Visual Studio 2015 open "onimesh.sln" in the root of the repository
+4. Select the "Build" button
+5. Output binary is located in the target directory
 
 ### Usage
 `onimesh <outputDir> <OniInputFiles>`
