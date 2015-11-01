@@ -1,9 +1,9 @@
 # onimesh
 
-### Prerequisites
+## Prerequisites
 The following prerequisites must be installed before running or compiling onimesh.
 
-##### OSX
+#### OSX
 ###### OpenNI2 SDK (version 2.2 beta currently)
 1. Go to the website http://structure.io/openni
 2. Download the zipped OSX file
@@ -28,7 +28,7 @@ The following prerequisites must be installed before running or compiling onimes
 6. Enter the command `brew tap homebrew/science`
 7. Enter the command `brew install pcl` (this can take a long time to complete)
 
-##### Windows
+#### Windows
 ###### OpenNI2 SDK (version 2.2 beta currently)
 1. Navigate to the website http://structure.io/openni
 2. Download both x86 and x64 Windows installers
@@ -40,7 +40,7 @@ The following prerequisites must be installed before running or compiling onimes
 3. Install both x86 and x64 installers
 
 ###### Point Cloud Library and PCL Dependencies (version 1.7.2 currently)
-1. Navigate to the website http://www.blue-marble.com/upload/
+1. Navigate to the website https://drive.google.com/folderview?id=0B0QLyytR4adsOGV0Q19OanpDM00&usp=sharing
 2. Download the zip file according to your needs
 
 	`OmDependenciesMinimal.zip` - If you only need to run onimesh (requires ~1.5GB disk space)
@@ -59,7 +59,7 @@ The following prerequisites must be installed before running or compiling onimes
 
 	`;%OM_DEPENDENCIES_ROOT%\PCL\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\VTK\bin;%OM_DEPENDENCIES_ROOT64%\PCL\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\VTK\bin`
 
-### Building Binaries
+## Building Binaries
 onimesh is built with the following dependencies
 * OpenNI2 2.2
 * Point Cloud Library 1.7.2
@@ -70,7 +70,7 @@ onimesh is built with the following dependencies
   * VTK 6.3.0
     * Qt 5.5.1
 
-##### OSX
+#### OSX
 1. Install all OSX prerequisites above
 2. Clone the onimesh repository to a local drive
 3. If you didn't install OpenNI2 to "/Applications" you will need to edit the makefile lines below with your install path:
@@ -84,14 +84,14 @@ onimesh is built with the following dependencies
 6. Enter the command `make`
 7. Output binary is located in the "bin" directory
 
-##### Windows
+#### Windows
 1. Install all Windows prerequisites above being sure to select the OmDependenciesWithPdb.zip
 2. Clone the onimesh repository to a local drive
 3. Using Visual Studio 2015 open "onimesh.sln" in the root of the repository
 4. Select the "Build" button
 5. Output binary is located in the target directory
 
-### Usage
+## Usage
 `onimesh <outputDir> <OniInputFiles>`
 
     outputDir - Output directory for data files
