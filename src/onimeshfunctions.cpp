@@ -260,7 +260,7 @@ namespace onimesh
     void cloud_cb (const CloudConstPtr& cloud)
     {
         pcl::PCDWriter w;
-        sprintf (buf, "frame_%06d.pcd", i);
+        sprintf_s (buf, "frame_%06d.pcd", i);
         w.writeBinaryCompressed (buf, *cloud);
         PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
                   cloud->size (), cloud->width, cloud->height, buf);
