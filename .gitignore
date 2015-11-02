@@ -10,6 +10,8 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+msvc_2015_x64
+msvc_2015_x86
 
 # user specific files
 *.suo
