@@ -14,7 +14,8 @@ int main(const int argc, const char** argv)
 
 	// Reads oni input and exports data as excel docs
 	onimesh::outputExcel(argc, argv);
-
+    // Reads oni input and exports pcd files
+    onimesh::outputPointCloud(argc, argv);
 	// Uncomment the following line to test creating a dummy point cloud
 	//onimesh::createDummyPointCloud();
 
