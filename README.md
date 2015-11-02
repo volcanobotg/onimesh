@@ -57,7 +57,7 @@ The following prerequisites must be installed before running or compiling onimes
 
 5. Add the following to the end of your system "Path" variable:
 
-	`;%OM_DEPENDENCIES_ROOT%\PCL\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\VTK\bin;%OM_DEPENDENCIES_ROOT64%\PCL\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\VTK\bin`
+	`;%OPENNI2_REDIST%;%OPENNI2_REDIST64%;%OM_DEPENDENCIES_ROOT%\PCL\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT%\PCL\3rdParty\VTK\bin;%OM_DEPENDENCIES_ROOT64%\PCL\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\FLANN\bin;%OM_DEPENDENCIES_ROOT64%\PCL\3rdParty\VTK\bin`
 
 ## Building Binaries
 onimesh is built with the following dependencies
