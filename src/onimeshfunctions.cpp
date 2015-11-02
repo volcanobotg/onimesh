@@ -249,14 +249,11 @@ namespace onimesh
      *
      *
      */
-    
+       
     //////////////////////////////////////////////////////////////////////////////
-    void printHelp (int, char **argv)
-    {
-        pcl::console::print_error ("Syntax is: %s input.oni\n", argv[0]);
-    }
-    
-    //////////////////////////////////////////////////////////////////////////////
+	//cloud_cb 
+	//Purpose: Takes a cloud object and writes it to a PCD file.
+	//////////////////////////////////////////////////////////////////////////////
     void cloud_cb (const CloudConstPtr& cloud)
     {
         pcl::PCDWriter w;
@@ -267,16 +264,25 @@ namespace onimesh
         ++i;
     }
     
-    /* ---[ */
+    ////////////////////////////////////////////////////////////////////////////////////////////
+	// outputPointCloud
+	// Purpose: Makes a OpenNI2Grabber to read from the ONI file. As the file is read in cloud_cb
+	//          is called to write the data to a PCD file. After the file has been read the 
+	//			grabber is deleted.
+	///////////////////////////////////////////////////////////////////////////////////////////          
 	void outputPointCloud(const int argc, const char** argv)
 	{
-        pcl::console::print_info ("Convert an ONI file to PCD format. For more information, use: %s -h\n", argv[0]);
+		//Writes a message to the console.
+        pcl::console::print_info ("Convert an ONI file to PCD format.\n");
         
-        
-        pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[1]);
+        //Initializes a grabber for the ONI file.
+        pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[2]);
+		//Calls boost to set up writing to PCD
         boost::function<void (const CloudConstPtr&) > f = boost::bind (&cloud_cb, _1);
+		//Callback to let the program know when the file has been written.
         boost::signals2::connection c = grabber->registerCallback (f);
         
+		//Do-while loop to read in all of the frames from the ONI file
         do
         {
             grabber->start ();
