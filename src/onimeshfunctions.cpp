@@ -17,18 +17,12 @@
 
 namespace onimesh
 {
-    using namespace std;
-    using namespace pcl;
-    using namespace pcl::console;
-    using pcl::console::print_error;
-    using pcl::console::print_info;
-    using pcl::console::print_value;
-    
+        
     boost::mutex mutex_;
     boost::shared_ptr<pcl::PCDGrabber<pcl::PointXYZRGBA> > grabber;
     pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud_;
     
-    typedef PointCloud<PointXYZRGBA> Cloud;
+    typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
     typedef Cloud::ConstPtr CloudConstPtr;
     
     int i = 0;
@@ -259,13 +253,13 @@ namespace onimesh
     //////////////////////////////////////////////////////////////////////////////
     void printHelp (int, char **argv)
     {
-        print_error ("Syntax is: %s input.oni\n", argv[0]);
+        pcl::console::print_error ("Syntax is: %s input.oni\n", argv[0]);
     }
     
     //////////////////////////////////////////////////////////////////////////////
     void cloud_cb (const CloudConstPtr& cloud)
     {
-        PCDWriter w;
+        pcl::PCDWriter w;
         sprintf (buf, "frame_%06d.pcd", i);
         w.writeBinaryCompressed (buf, *cloud);
         PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
@@ -276,7 +270,7 @@ namespace onimesh
     /* ---[ */
 	void outputPointCloud(int argc, char** argv)
 	{
-        print_info ("Convert an ONI file to PCD format. For more information, use: %s -h\n", argv[0]);
+        pcl::console::print_info ("Convert an ONI file to PCD format. For more information, use: %s -h\n", argv[0]);
         
         
         pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[1]);
@@ -299,15 +293,15 @@ namespace onimesh
     void printHelp (int, char **argv)
     {
         //print_error ("Syntax is: %s <file_name 1..N>.pcd <options>\n", argv[0]);
-        print_error ("Syntax is: %s <options>\n", argv[0]);
-        print_info ("  where options are:\n");
-        print_info ("                     -file file_name          = PCD file to be read from\n");
-        print_info ("                     -dir directory_path      = directory path to PCD file(s) to be read from\n");
-        print_info ("                     -fps frequency           = frames per second\n");
-        print_info ("                     -repeat                  = optional parameter that tells whether the PCD file(s) should be \"grabbed\" in a endless loop.\n");
-        print_info ("\n");
-        print_info ("                     -cam (*)                 = use given camera settings as initial view\n");
-        print_info (stderr, " (*) [Clipping Range / Focal Point / Position / ViewUp / Distance / Window Size / Window Pos] or use a <filename.cam> that contains the same information.\n");
+        pcl::console::print_error ("Syntax is: %s <options>\n", argv[0]);
+        pcl::console::print_info ("  where options are:\n");
+        pcl::console::print_info ("                     -file file_name          = PCD file to be read from\n");
+        pcl::console::print_info ("                     -dir directory_path      = directory path to PCD file(s) to be read from\n");
+        pcl::console::print_info ("                     -fps frequency           = frames per second\n");
+        pcl::console::print_info ("                     -repeat                  = optional parameter that tells whether the PCD file(s) should be \"grabbed\" in a endless loop.\n");
+        pcl::console::print_info ("\n");
+        pcl::console::print_info ("                     -cam (*)                 = use given camera settings as initial view\n");
+        pcl::console::print_info (stderr, " (*) [Clipping Range / Focal Point / Position / ViewUp / Distance / Window Size / Window Pos] or use a <filename.cam> that contains the same information.\n");
     }
     
     // Create the PCLVisualizer object
