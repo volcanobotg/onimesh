@@ -256,11 +256,14 @@ namespace onimesh
 	//////////////////////////////////////////////////////////////////////////////
     void cloud_cb (const CloudConstPtr& cloud)
     {
-        pcl::PCDWriter w;
-        sprintf_s (buf, "frame_%06d.pcd", i);
-        w.writeBinaryCompressed (buf, *cloud);
-        PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
+        if ( i % 50 == 0)
+        {
+            pcl::PCDWriter w;
+            sprintf_s (buf, "frame_%06d.pcd", i);
+            w.writeBinaryCompressed (buf, *cloud);
+            PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
                   cloud->size (), cloud->width, cloud->height, buf);
+        }
         ++i;
     }
     
@@ -272,25 +275,28 @@ namespace onimesh
 	///////////////////////////////////////////////////////////////////////////////////////////          
 	void outputPointCloud(const int argc, const char** argv)
 	{
-		//Writes a message to the console.
-        pcl::console::print_info ("Convert an ONI file to PCD format.\n");
-        
-        //Initializes a grabber for the ONI file.
-        pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[2]);
-		//Calls boost to set up writing to PCD
-        boost::function<void (const CloudConstPtr&) > f = boost::bind (&cloud_cb, _1);
-		//Callback to let the program know when the file has been written.
-        boost::signals2::connection c = grabber->registerCallback (f);
-        
-		//Do-while loop to read in all of the frames from the ONI file
-        do
+        for (int j = 2; j < argc; j++)
         {
-            grabber->start ();
-        }while (grabber->isRunning ());
+            //Writes a message to the console.
+            pcl::console::print_info ("Convert an ONI file to PCD format.\n");
         
-        PCL_INFO ("Successfully processed %d frames.\n", i);
+            //Initializes a grabber for the ONI file.
+            pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[j]);
+            //Calls boost to set up writing to PCD
+            boost::function<void (const CloudConstPtr&) > f = boost::bind (&cloud_cb, _1);
+            //Callback to let the program know when the file has been written.
+            boost::signals2::connection c = grabber->registerCallback (f);
         
-        delete grabber;
+            //Do-while loop to read in all of the frames from the ONI file
+            do
+            {
+                grabber->start ();
+            }while (grabber->isRunning ());
+        
+            PCL_INFO ("Successfully processed %d frames.\n", i);
+        
+            delete grabber;
+        }
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
