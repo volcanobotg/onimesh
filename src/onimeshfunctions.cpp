@@ -265,7 +265,7 @@ namespace onimesh
             if ( frameCounter % 50 == 0)
             {
                 pcl::PCDWriter w;
-                sprintf (buf, "frame_%06d.pcd", frameCounter);
+                sprintf_s (buf, "frame_%06d.pcd", frameCounter);
                 w.writeBinaryCompressed (buf, *cloud);
                 PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
                           cloud->size (), cloud->width, cloud->height, buf);
