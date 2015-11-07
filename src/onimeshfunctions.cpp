@@ -25,7 +25,8 @@ namespace onimesh
     typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
     typedef Cloud::ConstPtr CloudConstPtr;
     
-    int myCounter = 0;
+    int frameCounter = 0;
+	int fileCounter = 0;
     char buf[4096];
     long totalFrameNumber[200];
     
@@ -259,18 +260,18 @@ namespace onimesh
 	//////////////////////////////////////////////////////////////////////////////
     void cloud_cb (const CloudConstPtr& cloud)
     {
-        if (i <= totalFrames[myCounter])
+        if (frameCounter <= totalFrameNumber[fileCounter])
         {
-            if ( i % 50 == 0)
+            if ( frameCounter % 50 == 0)
             {
                 pcl::PCDWriter w;
-                sprintf (buf, "frame_%06d.pcd", i);
+                sprintf (buf, "frame_%06d.pcd", frameCounter);
                 w.writeBinaryCompressed (buf, *cloud);
                 PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
                           cloud->size (), cloud->width, cloud->height, buf);
             }
         }
-        ++i;
+        ++frameCounter;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -282,11 +283,12 @@ namespace onimesh
 	void outputPointCloud(const int argc, const char** argv)
 	{
         bool myStopBool = false;
-        myCounter = 0;
+        
         for (int j = 2; j < argc; j++)
         {
             myStopBool = false;
-            
+			frameCounter = 0;
+			fileCounter = j - 2;
             //Writes a message to the console.
             pcl::console::print_info ("Convert an ONI file to PCD format.\n");
         
@@ -300,25 +302,19 @@ namespace onimesh
             //Do-while loop to read in all of the frames from the ONI file
             while (myStopBool != true)
             {
-                if ( i <= totalFrames[j-2])
+                if ( frameCounter <= totalFrameNumber[fileCounter])
                 {
                     grabber->start ();
-                    if (i == totalFrames[j-2])
+                    if (frameCounter == totalFrameNumber[fileCounter])
                     {
                         myStopBool = true;
                     }
                 }
-                else
-                {
-                    myStopBool = true;
-                    std::cout<<"Grabber stopped\n";
-                }
             }
         
-            PCL_INFO ("Successfully processed %d frames.\n", i);
+            PCL_INFO ("Successfully processed %d frames.\n", frameCounter);
         
             delete grabber;
-            myCounter++;
         }
     }
     
