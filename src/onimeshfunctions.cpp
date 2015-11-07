@@ -25,8 +25,9 @@ namespace onimesh
     typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
     typedef Cloud::ConstPtr CloudConstPtr;
     
-    int i = 0;
+    int myCounter = 0;
     char buf[4096];
+    long totalFrameNumber[200];
     
 	const int FRAME_DATA_MOD = 100;
 
@@ -136,6 +137,8 @@ namespace onimesh
 
 			// Read all frames
 			numberOfFrames = pbc->getNumberOfFrames(ir);
+            // Fills a global array to use for each files maximum frame number.
+            totalFrameNumber[w] = numberOfFrames;
 			std::cout << "Start reading frame data...\n";
 			rc = ir.start();
             if (rc != openni::STATUS_OK)
@@ -256,13 +259,16 @@ namespace onimesh
 	//////////////////////////////////////////////////////////////////////////////
     void cloud_cb (const CloudConstPtr& cloud)
     {
-        if ( i % 50 == 0)
+        if (i <= totalFrames[myCounter])
         {
-            pcl::PCDWriter w;
-            sprintf_s (buf, "frame_%06d.pcd", i);
-            w.writeBinaryCompressed (buf, *cloud);
-            PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
-                  cloud->size (), cloud->width, cloud->height, buf);
+            if ( i % 50 == 0)
+            {
+                pcl::PCDWriter w;
+                sprintf (buf, "frame_%06d.pcd", i);
+                w.writeBinaryCompressed (buf, *cloud);
+                PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
+                          cloud->size (), cloud->width, cloud->height, buf);
+            }
         }
         ++i;
     }
@@ -275,8 +281,12 @@ namespace onimesh
 	///////////////////////////////////////////////////////////////////////////////////////////          
 	void outputPointCloud(const int argc, const char** argv)
 	{
+        bool myStopBool = false;
+        myCounter = 0;
         for (int j = 2; j < argc; j++)
         {
+            myStopBool = false;
+            
             //Writes a message to the console.
             pcl::console::print_info ("Convert an ONI file to PCD format.\n");
         
@@ -288,19 +298,31 @@ namespace onimesh
             boost::signals2::connection c = grabber->registerCallback (f);
         
             //Do-while loop to read in all of the frames from the ONI file
-            do
+            while (myStopBool != true)
             {
-                grabber->start ();
-            }while (grabber->isRunning ());
+                if ( i <= totalFrames[j-2])
+                {
+                    grabber->start ();
+                    if (i == totalFrames[j-2])
+                    {
+                        myStopBool = true;
+                    }
+                }
+                else
+                {
+                    myStopBool = true;
+                    std::cout<<"Grabber stopped\n";
+                }
+            }
         
             PCL_INFO ("Successfully processed %d frames.\n", i);
         
             delete grabber;
+            myCounter++;
         }
     }
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    //This is the area for using the pointCloudViewer
+    
     
     /// <summary>
 	/// This is a dummy example to show the use of writing a pcl file
@@ -317,7 +339,7 @@ namespace onimesh
 		cloud.height = 2;
 		cloud.is_dense = false;
 		cloud.points.resize(cloud.width * cloud.height);
-
+        
 		for (size_t i = 0; i < cloud.points.size(); ++i)
 		{
 			cloud.points[i].x = 1024 * rand() / (RAND_MAX + 1.0f);
