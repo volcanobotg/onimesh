@@ -393,67 +393,81 @@ namespace onimesh
 			std::cerr << "    " << cloud.points[i].x << " " << cloud.points[i].y << " " << cloud.points[i].z << std::endl;
 	}
 
-	/*
-	void openPCDFile() {
+	
+	void staticMesh(std::string pcdFileName) {
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud < pcl::PointXYZ>);
 
-		if (pcl::io::loadPCDFile<pcl::PointXYZ>("frame_000001.pcd", *cloud) == -1) //this loads the file
+		if (pcl::io::loadPCDFile<pcl::PointXYZ>(pcdFileName, *cloud) == -1) //this loads the file
 		{
-			PCL_ERROR("Couldn't read file frame_000001.pcd \n");
-			//return (-1);
-		}
-		std::cout << "Loaded "
-			<< cloud->width * cloud->height
-			<< " data points from frame_000001.pcd with the following fields: "
-			<< std::endl;
-		for (size_t i = 0; i < cloud->points.size(); i++) {
-			std::cout << "    " << cloud->points[i].x
-					  << "  "   << cloud->points[i].y
-					  << "  "   << cloud->points[i].z << std::endl;
+			PCL_ERROR("Couldn't read file \n");
 		}
 
 		float dist, distLowest, distLowest2;
 		int distIndex, distIndex2;
 
 		for (size_t i = 0; i < cloud->points.size(); i++) {
-			for (size_t j = 1; j < cloud->points.size(); j++) {
-				dist = sqrt(pow((cloud->points[j].x - cloud->points[i].x), 2) +
-							pow((cloud->points[j].y - cloud->points[i].y), 2) +
-							pow((cloud->points[j].z - cloud->points[i].z), 2));
-				if (j==0) {
-					distLowest = dist;
-					distIndex = j;
-				}
-				else if (j==1) {
-					if (dist < distLowest) {
+			for (size_t j = 0; j < cloud->points.size(); j++) {
+				//Only calculates if the indexes are different, because otherwise the distance is zero
+				if (i != j) {
+					//Calculates the distance between I and J in the tridimensional plane
+					dist = sqrt(pow((cloud->points[j].x - cloud->points[i].x), 2) +
+								pow((cloud->points[j].y - cloud->points[i].y), 2) +
+								pow((cloud->points[j].z - cloud->points[i].z), 2));
+
+					if (j == 0) {
+						distLowest = dist;
+						distIndex = j;
+					}
+					else if (j == 1) {
+						if (i == 0) {
+							distLowest = dist;
+							distIndex = j;
+						}
+						else {
+							if (dist < distLowest) {
+								distLowest2 = distLowest;
+								distIndex2 = distIndex;
+								distLowest = dist;
+								distIndex = j;
+							}
+							else {
+								distLowest2 = dist;
+								distIndex2 = j;
+							}
+						}
+						
+					}
+					else if ((i == 0 || i == 1) && j == 2) {
+						if (dist < distLowest) {
+							distLowest2 = distLowest;
+							distIndex2 = distIndex;
+							distLowest = dist;
+							distIndex = j;
+						}
+						else {
+							distLowest2 = dist;
+							distIndex2 = j;
+						}
+					}
+					else if (dist < distLowest) {
 						distLowest2 = distLowest;
 						distIndex2 = distIndex;
 						distLowest = dist;
 						distIndex = j;
 					}
-					else {
+					else if (dist < distLowest2) {
 						distLowest2 = dist;
 						distIndex2 = j;
 					}
 				}
-				else if (dist < distLowest) {
-					distLowest2 = distLowest;
-					distIndex2 = distIndex;
-					distLowest = dist;
-					distIndex = j;
-				}
-				else if (dist < distLowest2) {
-					distLowest2 = dist;
-					distIndex2 = j;
-				}
+				
 			}
-			//you have the two closest points to i now
+			//you have the two closest points to i now in distLowest and distLowest2, with their indexes distIndex and distIndex2, respectively
+			//now we have to draw lines to form a triangle using "i", "distIndex" and "distIndex2"
 
 		}
 	}
 
-	void createStaticMesh() {
 
-	}
-	*/
+	
 }
