@@ -13,6 +13,7 @@
 #include <pcl/visualization/boost.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/image_viewer.h>
+#include <boost/filesystem.hpp>
 #include <vector>
 #include "onimeshfunctions.h"
 
@@ -25,7 +26,7 @@ namespace onimesh
     
     typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
     typedef Cloud::ConstPtr CloudConstPtr;
-    
+	
     int frameCounter = 0;
 	int fileCounter = 0;
     char buf[4096];
@@ -316,7 +317,7 @@ namespace onimesh
 		const char* pointCloudOutputDirectory = argv[1];
 		char* pointCloudInputFile;
 		std::ofstream out;
-        
+		
         for (int j = 2; j < argc; j++)
         {
             myStopBool = false;
@@ -324,8 +325,6 @@ namespace onimesh
 			fileCounter = j - 2;
 			pointCloudInputFile = (char*)argv[j];
 			
-			
-
 			pointCloudOutputPath = getOutputFilePath(pointCloudOutputDirectory, pointCloudInputFile);
 			out.open(pointCloudOutputPath);
 			//Writes a message to the console.
