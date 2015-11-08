@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <OpenNI.h>
 #include <pcl/io/pcd_io.h>
@@ -12,6 +13,7 @@
 #include <pcl/visualization/boost.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/image_viewer.h>
+#include <boost/filesystem.hpp>
 #include <vector>
 #include "onimeshfunctions.h"
 
@@ -24,11 +26,12 @@ namespace onimesh
     
     typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
     typedef Cloud::ConstPtr CloudConstPtr;
-    
+	
     int frameCounter = 0;
 	int fileCounter = 0;
     char buf[4096];
     long totalFrameNumber[200];
+	std::string pointCloudOutputPath;
     
 	const int FRAME_DATA_MOD = 100;
 
@@ -254,6 +257,34 @@ namespace onimesh
      *
      */
        
+	std::string getOutputFilePath(const char* outputDirectory, const char* inputFile)
+	{
+		// If the path contains '/' characters
+		if (std::string(inputFile).find_last_of('/') != std::string::npos)
+		{
+			// Check if the directory needs a trailing '/'
+			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
+				return std::string(std::string(outputDirectory) + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) );
+
+			return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1));
+		}
+		// If the path contains '\' characters
+		else if (std::string(inputFile).find_last_of('\\') == std::string::npos)
+		{
+			// Check if the directory needs a trailing '\'
+			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
+				return std::string(std::string(outputDirectory) + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) );
+
+			return std::string(std::string(outputDirectory) + std::string("\\") + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) );
+		}
+
+		// Otherwise the input file does not contain a path
+		// Check if the directory needs a trailing '/'
+		if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
+			return std::string(std::string(outputDirectory) + std::string(inputFile) );
+
+		return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile));
+	}
     //////////////////////////////////////////////////////////////////////////////
 	//cloud_cb 
 	//Purpose: Takes a cloud object and writes it to a PCD file.
@@ -262,7 +293,7 @@ namespace onimesh
     {
         if (frameCounter <= totalFrameNumber[fileCounter])
         {
-            if ( frameCounter % 50 == 0)
+            if ( frameCounter % 150 == 0)
             {
                 pcl::PCDWriter w;
                 sprintf_s (buf, "frame_%06d.pcd", frameCounter);
@@ -283,14 +314,21 @@ namespace onimesh
 	void outputPointCloud(const int argc, const char** argv)
 	{
         bool myStopBool = false;
-        
+		const char* pointCloudOutputDirectory = argv[1];
+		char* pointCloudInputFile;
+		std::ofstream out;
+		
         for (int j = 2; j < argc; j++)
         {
             myStopBool = false;
 			frameCounter = 0;
 			fileCounter = j - 2;
-            //Writes a message to the console.
-            pcl::console::print_info ("Convert an ONI file to PCD format.\n");
+			pointCloudInputFile = (char*)argv[j];
+			
+			pointCloudOutputPath = getOutputFilePath(pointCloudOutputDirectory, pointCloudInputFile);
+			out.open(pointCloudOutputPath);
+			//Writes a message to the console.
+            std::cout<< "Converting " << pointCloudInputFile <<" to PCD format.\n";
         
             //Initializes a grabber for the ONI file.
             pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[j]);
@@ -298,21 +336,26 @@ namespace onimesh
             boost::function<void (const CloudConstPtr&) > f = boost::bind (&cloud_cb, _1);
             //Callback to let the program know when the file has been written.
             boost::signals2::connection c = grabber->registerCallback (f);
-        
+            
             //Do-while loop to read in all of the frames from the ONI file
             while (myStopBool != true)
             {
                 if ( frameCounter <= totalFrameNumber[fileCounter])
                 {
                     grabber->start ();
-                    if (frameCounter == totalFrameNumber[fileCounter])
+					boost::this_thread::sleep(boost::posix_time::seconds(1));
+                    if (frameCounter == totalFrameNumber[fileCounter] || (frameCounter + 50) >= totalFrameNumber[fileCounter])
                     {
                         myStopBool = true;
                     }
                 }
+				else
+				{
+					myStopBool = true;
+				}
             }
         
-            PCL_INFO ("Successfully processed %d frames.\n", frameCounter);
+            PCL_INFO ("Successfully processed %d frames.\n", totalFrameNumber[fileCounter]);
         
             delete grabber;
         }

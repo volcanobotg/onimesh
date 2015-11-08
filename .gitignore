@@ -10,8 +10,9 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
-msvc_2015_x64
-msvc_2015_x86
+msvc_2015_x64/
+msvc_2015_x86/
+osx_x64/
 
 # user specific files
 *.suo
@@ -30,3 +31,8 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
