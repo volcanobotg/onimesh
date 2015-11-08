@@ -1,43 +1,43 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
  
-project(OniMesh)
+project(onimesh)
 
-# *******************************************
-# OpenNI2
+##### OpenNI2 Dependency
+set(OPENNI2_INSTALL_DIR "/Applications/OpenNI-MacOSX-x64-2.2")
+set(OPENNI2_REDIST "${OPENNI2_INSTALL_DIR}/Redist")
 
-FIND_LIBRARY( OPENNI2_LIBRARY
-             NAMES OpenNI2
-             HINTS ${PC_OPENNI2_LIBDIR} ${PC_OPENNI2_LIBRARY_DIRS} /usr/lib
-             PATHS "$ENV{PROGRAMFILES}/OpenNI2/Lib${OPENNI2_SUFFIX}"    "$ENV{PROGRAMW6432}/OpenNI2/Lib${OPENNI2_SUFFIX}" "$ENV{PROGRAMW6432}/OpenNI2"
-             PATH_SUFFIXES lib lib64
-)
-FIND_PATH( OPENNI2_INCLUDE_DIR OpenNI.h
-          HINTS ${PC_OPENNI2_INCLUDEDIR} ${PC_OPENNI2_INCLUDE_DIRS} 
-                  /usr/include/openni2 /usr/include/ni2
-                  PATHS "$ENV{PROGRAMFILES}/OpenNI2/include" "$ENV{PROGRAMW6432}/OpenNI2/include"
-          PATH_SUFFIXES openni2 ni2)
- 
-# End OpenNI2
-# ******************************************************************
+FIND_PATH(	OPENNI2_INCLUDE_DIR 
+			NAMES OpenNI.h
+			HINTS ${PC_OPENNI2_INCLUDEDIR} ${PC_OPENNI2_INCLUDE_DIRS}
+			PATHS "$ENV{PROGRAMFILES}/OpenNI2/include" "$ENV{PROGRAMW6432}/OpenNI2/include" "${OPENNI2_INSTALL_DIR}/Include")
 
+FIND_LIBRARY(	OPENNI2_LIBRARY
+				NAMES OpenNI2 libOpenNI2
+				HINTS ${PC_OPENNI2_LIBDIR} ${PC_OPENNI2_LIBRARY_DIRS}
+				PATHS "$ENV{PROGRAMFILES}/OpenNI2/lib" "$ENV{PROGRAMW6432}/OpenNI2/lib" "${OPENNI2_REDIST}")
+
+set(OPENNI2_INCLUDE_DIRS ${OPENNI2_INCLUDE_DIR})
+set(OPENNI2_LIBRARIES ${OPENNI2_LIBRARY})
+
+##### PCL Dependency
 find_package(PCL 1.7 REQUIRED)
 
-include_directories(${PCL_INCLUDE_DIRS} ${OPENNI2_LIBRARY})
-link_directories(${PCL_LIBRARY_DIRS} ${OPENNI2_LIBRARY})
-add_definitions(${PCL_DEFINITIONS})
- 
-set(PCL_BUILD_TYPE Release)
- 
+##### Onimesh sources
 file(GLOB OniMesh_SRC
     "src/*.h"
     "src/*.cpp"
 )
-# *************************************************************************************
-# Set the output directories
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR}/bin ) # this is for the binary file
-set (CMAKE_LIBRARIES_OUTPUT_DIRECTORY ${BUILD_DIR}/bin) # this is for the libraries
-# *************************************************************************************
 
-add_executable(OniMesh ${OniMesh_SRC} ${OPENNI2_LIBRARY})
- 
-target_link_libraries (OniMesh ${PCL_LIBRARIES} ${OPENNI2_LIBRARY})
+##### Build Settings
+include_directories(${PCL_INCLUDE_DIRS} ${OPENNI2_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS} ${OPENNI2_LIBRARIES})
+add_definitions(${PCL_DEFINITIONS})
+set(PCL_BUILD_TYPE Release)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/osx_x64)
+set(CMAKE_LIBRARIES_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/osx_x64)
+add_executable(onimesh ${OniMesh_SRC} ${PCL_INCLUDE_DIRS} ${OPENNI2_INCLUDE_DIRS})
+target_link_libraries(onimesh ${PCL_LIBRARIES} ${OPENNI2_LIBRARIES})
+
+##### Custom Build Events
+add_custom_command(TARGET onimesh PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+add_custom_command(TARGET onimesh POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${OPENNI2_REDIST} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

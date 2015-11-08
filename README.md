@@ -9,9 +9,7 @@ The following prerequisites must be installed before running or compiling onimes
 2. Download the zipped OSX file
 3. Double click the downloaded file to unzip the folder
 4. Move the folder to the desired install directory ("/Applications" suggested for minimal build configuration, if installing to a different location use your selected install path in place of "/Applications" in the commands below)
-5. Open a Terminal window
-6. Enter the command `sudo /Applications/OpenNI-MacOSX-x64-2.2/install.sh`
-7. Enter your admin password when prompted to install OpenNI2
+  * The expected directory structure is "/Applications/OpenNI-MacOSX-x64-2.2/..."
 
 ###### Java JDK (required for Homebrew only)
 1. Navigate to the website http://www.oracle.com/technetwork/java/javase/downloads/index.html
@@ -26,7 +24,7 @@ The following prerequisites must be installed before running or compiling onimes
 4. Enter your admin password when prompted
 5. Enter the command `brew update`
 6. Enter the command `brew tap homebrew/science`
-7. Enter the command `brew install pcl` (this can take a long time to complete)
+7. Enter the command `brew install pcl --with-openni2` (this can take a long time to complete)
 
 #### Windows
 ###### OpenNI2 SDK (version 2.2 beta currently)
@@ -47,7 +45,8 @@ The following prerequisites must be installed before running or compiling onimes
 	
 	`OmDependenciesWithPdb.zip` - If you plan on compiling onimesh (requires ~11.5GB disk space)
 
-3. Unzip the contents of the zip file to the root directory of the C drive so that you have the folder structure C:\OmDependencies\msvc_2015_x86\...
+3. Unzip the contents of the zip file to the root directory of the C drive
+  * The expected directory structure is "C:\OmDependencies\msvc_2015_x86\..."
 4. Add the following system environment variables
 
     | Variable Name  | Variable Value |
@@ -73,16 +72,15 @@ onimesh is built with the following dependencies
 #### OSX
 1. Install all OSX prerequisites above
 2. Clone the onimesh repository to a local drive
-3. If you didn't install OpenNI2 to "/Applications" you will need to edit the makefile lines below with your install path:
+3. If you didn't install OpenNI2 to "/Applications" you will need to edit the following line in the file "CMakeLists.txt" with your install path:
 
-    `OPENNI2_INCLUDE=/OpenNI2InstallPath/Include`
-	
-    `OPENNI2_DLIBRARY=/OpenNI2InstallPath/Redist/libOpenNI2.dylib`
+    `set(OPENNI2_INSTALL_DIR "/Applications/OpenNI-MacOSX-x64-2.2")`
 
 4. Open a Terminal window
 5. In Terminal, navigate to the root of the repository
-6. Enter the command `make`
-7. Output binary is located in the "bin" directory
+6. Create the makefile by entering the command `cmake CMakeLists.txt`
+7. Compile OM by entering the command `make`
+7. Output binary is located in the "osx_x64" directory
 
 #### Windows
 1. Install all Windows prerequisites above being sure to select the OmDependenciesWithPdb.zip
