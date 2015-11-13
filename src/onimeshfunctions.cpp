@@ -263,7 +263,7 @@ namespace onimesh
     {
         if (frameCounter <= totalFrameNumber[fileCounter])
         {
-            if ( frameCounter % 150 == 0)
+            if ( frameCounter % FRAME_DATA_MOD == 0)
             {
                 pcl::PCDWriter w;
                 sprintf_s (buf, "frame_%06d.pcd", frameCounter);
@@ -297,19 +297,19 @@ namespace onimesh
 			pointCloudOutputPath = getOutputFilePath(pointCloudOutputDirectory, pointCloudInputFile);
 			out.open(pointCloudOutputPath);
 
-			//Writes a message to the console.
+			// Writes a message to the console.
             std::cout<< "Converting " << pointCloudInputFile <<" to PCD format.\n";
         
-            //Initializes a grabber for the ONI file.
+            // Initializes a grabber for the ONI file.
             pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[j]);
 
-            //Calls boost to set up writing to PCD
+            // Calls boost to set up writing to PCD
             boost::function<void (const CloudConstPtr&) > f = boost::bind (&cloud_cb, _1);
 
-            //Callback to let the program know when the file has been written.
+            // Callback to let the program know when the file has been written.
             boost::signals2::connection c = grabber->registerCallback (f);
             
-            //Do-while loop to read in all of the frames from the ONI file
+            // Do-while loop to read in all of the frames from the ONI file
             while (myStopBool != true)
             {
                 if ( frameCounter <= totalFrameNumber[fileCounter])
@@ -379,9 +379,9 @@ namespace onimesh
 
 		for (size_t i = 0; i < cloud->points.size(); i++) {
 			for (size_t j = 0; j < cloud->points.size(); j++) {
-				//Only calculates if the indexes are different, because otherwise the distance is zero
+				// Only calculates if the indexes are different, because otherwise the distance is zero
 				if (i != j) {
-					//Calculates the distance between I and J in the tridimensional plane
+					// Calculates the distance between I and J in the tridimensional plane
 					dist = sqrt(pow((cloud->points[j].x - cloud->points[i].x), 2) +
 								pow((cloud->points[j].y - cloud->points[i].y), 2) +
 								pow((cloud->points[j].z - cloud->points[i].z), 2));
@@ -434,8 +434,8 @@ namespace onimesh
 				}
 				
 			}
-			//you have the two closest points to i now in distLowest and distLowest2, with their indexes distIndex and distIndex2, respectively
-			//now we have to draw lines to form a triangle using "i", "distIndex" and "distIndex2"
+			// you have the two closest points to i now in distLowest and distLowest2, with their indexes distIndex and distIndex2, respectively
+			// now we have to draw lines to form a triangle using "i", "distIndex" and "distIndex2"
 
 		}
 	}
