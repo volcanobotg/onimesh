@@ -13,6 +13,8 @@
 #ifndef _onimeshfunctions
 #define _onimeshfunctions
 
+#include "common.h"
+
 namespace onimesh
 {
 	/// <summary>
@@ -26,6 +28,16 @@ namespace onimesh
 	void outputExcel(const int argc, const char** argv);
 
 	/// <summary>
+	/// Creates an output file path
+	/// </summary>     
+	std::string getOutputFilePath(const char* outputDirectory, const char* inputFile);
+
+	/// <summary>
+	/// Takes a cloud object and writes it to a PCD file.
+	/// </summary>
+	void cloud_cb(const CloudConstPtr& cloud);
+
+	/// <summary>
 	/// Reads oni input and exports data as point clouds
 	/// </summary>
 	void outputPointCloud(const int argc, const char** argv);
@@ -37,6 +49,11 @@ namespace onimesh
 	/// http://pointclouds.org/documentation/tutorials/writing_pcd.php#writing-pcd
 	/// </summary>
 	void createDummyPointCloud();
+
+	/// <summary>
+	/// Creates a static meshes from point cloud data files
+	/// </summary>  
+	void staticMesh(std::string pcdFileName);
 }
 
 // End Macroguard

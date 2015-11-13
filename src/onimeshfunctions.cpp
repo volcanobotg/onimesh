@@ -26,6 +26,7 @@
 #include <pcl/visualization/image_viewer.h>
 #include <boost/filesystem.hpp>
 #include <vector>
+#include "common.h"
 #include "onimeshfunctions.h"
 
 namespace onimesh
@@ -33,9 +34,6 @@ namespace onimesh
     boost::mutex mutex_;
     boost::shared_ptr<pcl::PCDGrabber<pcl::PointXYZRGBA> > grabber;
     pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud_;
-    
-    typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
-    typedef Cloud::ConstPtr CloudConstPtr;
 	
     int frameCounter = 0;
 	int fileCounter = 0;
@@ -227,7 +225,7 @@ namespace onimesh
 	}
 
 	/// <summary>
-	/// Reads oni input and exports data as point clouds
+	/// Creates an output file path
 	/// </summary>     
 	std::string getOutputFilePath(const char* outputDirectory, const char* inputFile)
 	{
@@ -365,7 +363,9 @@ namespace onimesh
 			std::cerr << "    " << cloud.points[i].x << " " << cloud.points[i].y << " " << cloud.points[i].z << std::endl;
 	}
 
-	
+	/// <summary>
+	/// Creates a static meshes from point cloud data files
+	/// </summary>  
 	void staticMesh(std::string pcdFileName) {
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud < pcl::PointXYZ>);
 
