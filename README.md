@@ -1,5 +1,7 @@
 # onimesh
 
+onimesh is released under the terms of the BSD license, and thus free for commercial and research use. See LICENSE.txt for more information.
+
 ## Prerequisites
 The following prerequisites must be installed before running or compiling onimesh.
 
