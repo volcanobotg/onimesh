@@ -29,8 +29,7 @@
 #include "onimeshfunctions.h"
 
 namespace onimesh
-{
-        
+{  
     boost::mutex mutex_;
     boost::shared_ptr<pcl::PCDGrabber<pcl::PointXYZRGBA> > grabber;
     pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud_;
@@ -152,6 +151,7 @@ namespace onimesh
 
 			// Read all frames
 			numberOfFrames = pbc->getNumberOfFrames(ir);
+
             // Fills a global array to use for each files maximum frame number.
             totalFrameNumber[w] = numberOfFrames;
 			std::cout << "Start reading frame data...\n";
@@ -257,10 +257,10 @@ namespace onimesh
 
 		return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile));
 	}
-    //////////////////////////////////////////////////////////////////////////////
-	//cloud_cb 
-	//Purpose: Takes a cloud object and writes it to a PCD file.
-	//////////////////////////////////////////////////////////////////////////////
+
+	/// <summary>
+	/// Takes a cloud object and writes it to a PCD file.
+	/// </summary>
     void cloud_cb (const CloudConstPtr& cloud)
     {
         if (frameCounter <= totalFrameNumber[fileCounter])
@@ -277,12 +277,11 @@ namespace onimesh
         ++frameCounter;
     }
     
-    ////////////////////////////////////////////////////////////////////////////////////////////
-	// outputPointCloud
-	// Purpose: Makes a OpenNI2Grabber to read from the ONI file. As the file is read in cloud_cb
-	//          is called to write the data to a PCD file. After the file has been read the 
-	//			grabber is deleted.
-	///////////////////////////////////////////////////////////////////////////////////////////          
+	/// <summary>
+	/// Makes a OpenNI2Grabber to read from the ONI file. As the file is read in cloud_cb
+	/// is called to write the data to a PCD file. After the file has been read the 
+	/// grabber is deleted.
+	/// </summary>          
 	void outputPointCloud(const int argc, const char** argv)
 	{
         bool myStopBool = false;
@@ -299,13 +298,16 @@ namespace onimesh
 			
 			pointCloudOutputPath = getOutputFilePath(pointCloudOutputDirectory, pointCloudInputFile);
 			out.open(pointCloudOutputPath);
+
 			//Writes a message to the console.
             std::cout<< "Converting " << pointCloudInputFile <<" to PCD format.\n";
         
             //Initializes a grabber for the ONI file.
             pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[j]);
+
             //Calls boost to set up writing to PCD
             boost::function<void (const CloudConstPtr&) > f = boost::bind (&cloud_cb, _1);
+
             //Callback to let the program know when the file has been written.
             boost::signals2::connection c = grabber->registerCallback (f);
             
@@ -332,9 +334,7 @@ namespace onimesh
             delete grabber;
         }
     }
-    
-    
-    
+
     /// <summary>
 	/// This is a dummy example to show the use of writing a pcl file
 	/// that contains a 5x2 cloud with random values
@@ -439,7 +439,4 @@ namespace onimesh
 
 		}
 	}
-
-
-	
 }
