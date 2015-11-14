@@ -24,7 +24,7 @@ int main(const int argc, const char** argv)
 	}
 
 	// Reads oni input and exports data as excel docs
-	onimesh::outputExcel(argc, argv);
+	onimesh::outputOniData(argc, argv);
 
     // Reads oni input and exports pcd files
     onimesh::outputPointCloud(argc, argv);

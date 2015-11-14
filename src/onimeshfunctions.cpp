@@ -76,9 +76,30 @@ namespace onimesh
 	}
 
 	/// <summary>
-	/// Reads oni input and exports data as excel docs
+	/// Exports a depth frame to the excel data file
 	/// </summary>
-	void outputExcel(const int argc, const char** argv)
+	void outputFrameToCsv(std::ofstream& outFileStream, openni::VideoFrameRef frameReference)
+	{
+		OniDepthPixel* pDepth = (OniDepthPixel*)frameReference.getData();
+		int frameHeight = frameReference.getHeight();
+		int frameWidth = frameReference.getWidth();
+		std::cout << "Processing " << frameWidth << "x" << frameHeight << " frame number " << frameReference.getFrameIndex() << "...\n";
+		outFileStream << "FrameNumber=" << frameReference.getFrameIndex() << ",FrameWidth=" << frameWidth << ",FrameHeight=" << frameHeight << ",\n";
+		for (int y = 0; y < frameHeight; ++y)  // All heights
+		{
+			for (int x = 0; x < frameWidth; ++x, ++pDepth)  // All witdths
+			{
+				outFileStream << *pDepth << ",";
+			}
+			outFileStream << "\n";
+		}
+		outFileStream << ",\n";
+	}
+
+	/// <summary>
+	/// Reads oni input and exports data as excel docs and point clouds
+	/// </summary>
+	void outputOniData(const int argc, const char** argv)
 	{
 		std::cout << "Start excel data output...\n";
 		
@@ -88,8 +109,6 @@ namespace onimesh
 		openni::Device device;
 		openni::VideoStream ir;
 		openni::VideoFrameRef irf;
-		OniDepthPixel* pDepth;
-		int frameHeight, frameWidth;
 		long frameIndex, numberOfFrames;
 		std::ofstream out;
         
@@ -177,26 +196,13 @@ namespace onimesh
 					break;
 				}
 
-				// Gather frame data
-				pDepth = (OniDepthPixel*)irf.getData();
+				// Get the frame index number
 				frameIndex = irf.getFrameIndex();
 
 				// Skip unneeded frames
 				if (frameIndex % FRAME_DATA_MOD == 0)
 				{
-					frameHeight = irf.getHeight();
-					frameWidth = irf.getWidth();
-					std::cout << "Processing " << frameWidth << "x" << frameHeight << " frame number " << frameIndex << "...\n";
-					out << "FrameNumber=" << frameIndex << ",FrameWidth=" << frameWidth << ",FrameHeight=" << frameHeight << ",\n";
-					for (int y = 0; y < frameHeight; ++y)  // All heights
-					{
-						for (int x = 0; x < frameWidth; ++x, ++pDepth)  // All witdths
-						{
-							out << *pDepth << ",";
-						}
-						out << "\n";
-					}
-					out << ",\n";
+					outputFrameToCsv(out, irf);
 				}
 				else
 				{

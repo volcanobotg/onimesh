@@ -13,6 +13,8 @@
 #ifndef _onimeshfunctions
 #define _onimeshfunctions
 
+#include <fstream>
+#include <OpenNI.h>
 #include "common.h"
 
 namespace onimesh
@@ -23,9 +25,14 @@ namespace onimesh
 	std::string getOutputFileName(const char* outputDirectory, const char* inputFile, const char* fileExtension);
 
 	/// <summary>
-	/// Reads oni input and exports data as excel docs
+	/// Exports a depth frame to the excel data file
 	/// </summary>
-	void outputExcel(const int argc, const char** argv);
+	void outputFrameToCsv(std::ofstream& outFileStream, openni::VideoFrameRef frameReference);
+
+	/// <summary>
+	/// Reads oni input and exports data as excel docs and point clouds
+	/// </summary>
+	void outputOniData(const int argc, const char** argv);
 
 	/// <summary>
 	/// Creates an output file path
