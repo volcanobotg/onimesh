@@ -20,7 +20,7 @@ namespace onimesh
 	/// <summary>
 	/// Creates a name for an output file
 	/// </summary>
-	std::string getOutputFileName(const char* outputDirectory, const char* inputFile, const char* fileExtension);
+	std::string getOutputFileName(const std::string outputDirectory, const char* inputFile, const char* fileExtension);
 
 	/// <summary>
 	/// Creates a directory

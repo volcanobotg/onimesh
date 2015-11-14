@@ -18,7 +18,7 @@ namespace onimesh
 	/// <summary>
 	/// Creates a name for an output file
 	/// </summary>
-	std::string getOutputFileName(const char* outputDirectory, const char* inputFile, const char* fileExtension)
+	std::string getOutputFileName(const std::string outputDirectory, const char* inputFile, const char* fileExtension)
 	{
 		// If the path contains '/' characters
 		if (std::string(inputFile).find_last_of('/') != std::string::npos)
@@ -30,7 +30,7 @@ namespace onimesh
 			return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) + std::string(fileExtension));
 		}
 		// If the path contains '\' characters
-		else if (std::string(inputFile).find_last_of('\\') == std::string::npos)
+		else if (std::string(inputFile).find_last_of('\\') != std::string::npos)
 		{
 			// Check if the directory needs a trailing '\'
 			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')

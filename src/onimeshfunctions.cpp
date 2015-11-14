@@ -9,6 +9,7 @@
 * If not, please visit: https://github.com/volcanobotg/onimesh for full license information.
 */
 
+#include <boost/filesystem.hpp>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -125,7 +126,7 @@ namespace onimesh
 	{
 		std::cout << "\nStart oni data output...\n\n";
 		
-        const char* outputDirectory = argv[1];
+        const std::string outputDirectory = boost::filesystem::absolute(argv[1]).string();
         char* inputFile;
 		const int numberInputFiles = argc - 2;
 		openni::Device device;
