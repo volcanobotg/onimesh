@@ -21,6 +21,9 @@
     <ClCompile Include="src\onimeshfunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\filesystemHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -29,7 +32,7 @@
     <ClInclude Include="src\onimeshfunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common.h">
+    <ClInclude Include="src\filesystemHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

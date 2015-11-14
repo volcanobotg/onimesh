@@ -23,14 +23,8 @@ int main(const int argc, const char** argv)
 		exit(1);
 	}
 
-	// Reads oni input and exports data as excel docs
+	// Reads oni input files and exports data as excel docs and point clouds
 	onimesh::outputOniData(argc, argv);
-
-    // Reads oni input and exports pcd files
-    onimesh::outputPointCloud(argc, argv);
-
-	// Uncomment the following line to test creating a dummy point cloud
-	//onimesh::createDummyPointCloud();
 
 	std::cout << "Onimesh output generation complete.\n";
 	exit(0);

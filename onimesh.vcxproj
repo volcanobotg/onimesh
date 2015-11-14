@@ -222,6 +222,7 @@ xcopy "$(OM_DEPENDENCIES_ROOT64)\PCL\3rdParty\VTK\bin\vtkjpeg-6.3.dll" "$(Target
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\filesystemHelper.cpp" />
     <ClCompile Include="src\onimesh.cpp" />
     <ClCompile Include="src\onimeshfunctions.cpp" />
   </ItemGroup>
@@ -229,7 +230,7 @@ xcopy "$(OM_DEPENDENCIES_ROOT64)\PCL\3rdParty\VTK\bin\vtkjpeg-6.3.dll" "$(Target
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\filesystemHelper.h" />
     <ClInclude Include="src\onimeshfunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

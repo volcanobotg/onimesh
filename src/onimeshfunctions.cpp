@@ -9,85 +9,38 @@
 * If not, please visit: https://github.com/volcanobotg/onimesh for full license information.
 */
 
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <OpenNI.h>
+#include <OniProperties.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/io/Grabber.h>
-#include <pcl/point_cloud.h>
-#include <pcl/io/openni2_grabber.h>
-#include <pcl/console/print.h>
-#include <pcl/io/pcd_grabber.h>
-#include <pcl/console/parse.h>
-#include <pcl/visualization/boost.h>
-#include <pcl/visualization/cloud_viewer.h>
-#include <pcl/visualization/image_viewer.h>
-#include <boost/filesystem.hpp>
-#include <vector>
-#include "common.h"
+#include "filesystemHelper.h"
 #include "onimeshfunctions.h"
 
 namespace onimesh
-{  
-    boost::mutex mutex_;
-    boost::shared_ptr<pcl::PCDGrabber<pcl::PointXYZRGBA> > grabber;
-    pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud_;
-	
-    int frameCounter = 0;
-	int fileCounter = 0;
-    char buf[4096];
-    long totalFrameNumber[200];
-	std::string pointCloudOutputPath;
-    
+{
 	const int FRAME_DATA_MOD = 100;
-
-	/// <summary>
-	/// Creates a name for an output file
-	/// </summary>
-	std::string getOutputFileName(const char* outputDirectory, const char* inputFile, const char* fileExtension)
-	{
-		// If the path contains '/' characters
-		if (std::string(inputFile).find_last_of('/') != std::string::npos)
-		{
-			// Check if the directory needs a trailing '/'
-			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
-				return std::string(std::string(outputDirectory) + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) + std::string(fileExtension));
-
-			return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) + std::string(fileExtension));
-		}
-		// If the path contains '\' characters
-		else if (std::string(inputFile).find_last_of('\\') == std::string::npos)
-		{
-			// Check if the directory needs a trailing '\'
-			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
-				return std::string(std::string(outputDirectory) + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) + std::string(fileExtension));
-
-			return std::string(std::string(outputDirectory) + std::string("\\") + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) + std::string(fileExtension));
-		}
-
-		// Otherwise the input file does not contain a path
-		// Check if the directory needs a trailing '/'
-		if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
-			return std::string(std::string(outputDirectory) + std::string(inputFile) + std::string(fileExtension));
-
-		return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile) + std::string(fileExtension));
-	}
 
 	/// <summary>
 	/// Exports a depth frame to the excel data file
 	/// </summary>
-	void outputFrameToCsv(std::ofstream& outFileStream, openni::VideoFrameRef frameReference)
+	void outputFrameToCsv(std::ofstream& outFileStream, const openni::VideoFrameRef frameReference)
 	{
 		OniDepthPixel* pDepth = (OniDepthPixel*)frameReference.getData();
 		int frameHeight = frameReference.getHeight();
 		int frameWidth = frameReference.getWidth();
+
+		// Output the frame header
 		std::cout << "Processing " << frameWidth << "x" << frameHeight << " frame number " << frameReference.getFrameIndex() << "...\n";
 		outFileStream << "FrameNumber=" << frameReference.getFrameIndex() << ",FrameWidth=" << frameWidth << ",FrameHeight=" << frameHeight << ",\n";
-		for (int y = 0; y < frameHeight; ++y)  // All heights
+
+		// All heights of the frame
+		for (int y = 0; y < frameHeight; ++y)
 		{
-			for (int x = 0; x < frameWidth; ++x, ++pDepth)  // All witdths
+			// All widths of the frame
+			for (int x = 0; x < frameWidth; ++x, ++pDepth)
 			{
 				outFileStream << *pDepth << ",";
 			}
@@ -97,11 +50,80 @@ namespace onimesh
 	}
 
 	/// <summary>
+	/// Exports a depth frame to the excel data file
+	/// </summary>
+	void outputFrameToPcd(const std::string outputFrameDirectory, const openni::Device* device, const openni::VideoFrameRef frameReference)
+	{
+		// Set cloud meta data
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud <pcl::PointXYZ>);
+		cloud->header.seq = frameReference.getFrameIndex();
+		cloud->header.frame_id = frameReference.getFrameIndex();
+		cloud->header.stamp = frameReference.getTimestamp();
+		cloud->height = frameReference.getHeight();
+		cloud->width = frameReference.getWidth();
+		cloud->is_dense = false;
+		cloud->points.resize(cloud->height * cloud->width);
+
+		// Get the device field of view
+		int xFov = 0, yFov = 0;
+		device->getProperty(openni::STREAM_PROPERTY_HORIZONTAL_FOV, &xFov);
+		device->getProperty(openni::STREAM_PROPERTY_VERTICAL_FOV, &yFov);
+
+		// Use field of view to calculate focal point which is used to calculate constant height and width
+		float constant_x = 1.0f / (((float)cloud->width / 2) / tan(xFov));
+		float constant_y = 1.0f / (((float)cloud->height / 2) / tan(yFov));
+		
+		// Calculate the center of height and width
+		float centerX = ((float)cloud->width - 1.f) / 2.f;
+		float centerY = ((float)cloud->height - 1.f) / 2.f;
+
+		// Set bad point value
+		float bad_point = std::numeric_limits<float>::quiet_NaN();
+
+		// All widths in frame
+		const uint16_t* depth_map = (const uint16_t*)frameReference.getData();
+		int depth_idx = 0;
+		for (int v = 0; v < cloud->width; ++v)
+		{
+			// All heights in frame
+			for (int u = 0; u < cloud->height; ++u, ++depth_idx)
+			{
+				pcl::PointXYZ& pt = cloud->points[depth_idx];
+				// Check for invalid measurements
+				if (depth_map[depth_idx] == 0)
+				{
+					// not valid
+					pt.x = pt.y = pt.z = bad_point;
+					continue;
+				}
+
+				// Set the x,y,z values
+				pt.z = depth_map[depth_idx] * 0.001f;
+				pt.x = (static_cast<float> (u) - centerX) * pt.z * constant_x;
+				pt.y = (static_cast<float> (v) - centerY) * pt.z * constant_y;
+			}
+		}
+
+		// Set the point cloud orientation
+		cloud->sensor_origin_.setZero();
+		cloud->sensor_orientation_.w() = 1.0f;
+		cloud->sensor_orientation_.x() = 0.0f;
+		cloud->sensor_orientation_.y() = 0.0f;
+		cloud->sensor_orientation_.z() = 0.0f;
+
+		// Output the point cloud to a pcd frame file
+		std::stringstream outputFrameFile;
+		outputFrameFile << outputFrameDirectory << "frame_" << std::setw(10) << std::setfill('0') << frameReference.getFrameIndex() << ".pcd";
+		pcl::PCDWriter w;
+		w.writeBinaryCompressed(outputFrameFile.str(), *cloud);
+	}
+
+	/// <summary>
 	/// Reads oni input and exports data as excel docs and point clouds
 	/// </summary>
 	void outputOniData(const int argc, const char** argv)
 	{
-		std::cout << "Start excel data output...\n";
+		std::cout << "\nStart oni data output...\n\n";
 		
         const char* outputDirectory = argv[1];
         char* inputFile;
@@ -112,15 +134,19 @@ namespace onimesh
 		long frameIndex, numberOfFrames;
 		std::ofstream out;
         
+		// Create Output directory
+		if (!onimesh::createDirectory(outputDirectory))
+			exit(2);
+
         // Initialize openni
         openni::Status rc = openni::OpenNI::initialize();
         if (rc != openni::STATUS_OK)
         {
-            printf("Initialize failed\n%s\n", openni::OpenNI::getExtendedError());
-            exit(2);
+            printf("\nInitialize failed\n%s\n", openni::OpenNI::getExtendedError());
+            exit(3);
         }
 
-		// Output excel doc for each input file
+		// Output each input file
 		for (int w = 0; w < numberInputFiles; ++w)
 		{
 			inputFile = (char*)argv[w + 2];
@@ -130,30 +156,30 @@ namespace onimesh
 			rc = device.open(inputFile);
             if (rc != openni::STATUS_OK)
             {
-                printf("Couldn't open device\n%s\n", openni::OpenNI::getExtendedError());
-                exit(3);
+                printf("\nCouldn't open device\n%s\n", openni::OpenNI::getExtendedError());
+                exit(4);
             }
             
             // Create the Video Stream
 			rc = ir.create(device, openni::SENSOR_DEPTH);
             if (rc != openni::STATUS_OK)
             {
-                printf("Couldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
-                exit(4);
+                printf("\nCouldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
+                exit(5);
             }
             
 			// Device Check
 			if (!device.isValid())
 			{
 				std::cerr << "\nThe device is not valid.\n";
-				exit(5);
+				exit(6);
 			}
             
 			// Verify the device is a file
 			if (!device.isFile())
 			{
 				std::cerr << "\nThe device is not a file.\n";
-				exit(6);
+				exit(7);
 			}
 			std::cout << "File open success...\n";
 
@@ -162,37 +188,44 @@ namespace onimesh
 			pbc->setSpeed(-1);
 			pbc->setRepeatEnabled(false);
 
-			// Open output file
-			std::string outputFile = getOutputFileName(outputDirectory, inputFile, ".csv");
-			out.open(outputFile);
+			// Delete point cloud output directory if it exists, we don't want old frame data
+			std::string pointCloudOutputDirectory = onimesh::getOutputFileName(outputDirectory, inputFile, "");
+			if (!onimesh::deleteDirectory(pointCloudOutputDirectory))
+				exit(8);
 
-			// Read all frames
+			// Create point cloud output directory
+			if (!onimesh::createDirectory(pointCloudOutputDirectory))
+				exit(9);
+
+			// Open csv output file for writing
+			std::string csvOutputFile = onimesh::getOutputFileName(outputDirectory, inputFile, ".csv");
+			out.open(csvOutputFile);
+
+			// Start reading the frame data
 			numberOfFrames = pbc->getNumberOfFrames(ir);
-
-            // Fills a global array to use for each files maximum frame number.
-            totalFrameNumber[w] = numberOfFrames;
 			std::cout << "Start reading frame data...\n";
 			rc = ir.start();
             if (rc != openni::STATUS_OK)
             {
-                printf("Couldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
-                exit(7);
+                printf("\nCouldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
+                exit(10);
             }
             
+			// Read all frames
 			while (true)
 			{
 				// Read a frame
 				rc = ir.readFrame(&irf);
                 if (rc != openni::STATUS_OK)
                 {
-                    printf("Read failed!\n%s\n", openni::OpenNI::getExtendedError());
+                    printf("\nRead failed!\n%s\n", openni::OpenNI::getExtendedError());
                     continue;
                 }
 
 				// Verify frame data is valid
 				if (!irf.isValid())
 				{
-					std::cerr << "Error reading video stream frame\n";
+					std::cerr << "\nError reading video stream frame\n";
 					break;
 				}
 
@@ -202,7 +235,8 @@ namespace onimesh
 				// Skip unneeded frames
 				if (frameIndex % FRAME_DATA_MOD == 0)
 				{
-					outputFrameToCsv(out, irf);
+					onimesh::outputFrameToCsv(out, irf);
+					onimesh::outputFrameToPcd(pointCloudOutputDirectory + '/', &device, irf);
 				}
 				else
 				{
@@ -212,7 +246,7 @@ namespace onimesh
 				// Break if reading the last frame
 				if (numberOfFrames == frameIndex)
 				{
-					std::cout << "Last frame has been read...\n";
+					std::cout << "Last frame has been read...\n\n";
 					break;
 				}
 			}
@@ -227,146 +261,7 @@ namespace onimesh
 
 		// OpenNI cleanup
 		openni::OpenNI::shutdown();
-		std::cout << "Excel data output complete.\n";
-	}
-
-	/// <summary>
-	/// Creates an output file path
-	/// </summary>     
-	std::string getOutputFilePath(const char* outputDirectory, const char* inputFile)
-	{
-		// If the path contains '/' characters
-		if (std::string(inputFile).find_last_of('/') != std::string::npos)
-		{
-			// Check if the directory needs a trailing '/'
-			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
-				return std::string(std::string(outputDirectory) + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1) );
-
-			return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile).substr(std::string(inputFile).find_last_of('/') + 1));
-		}
-		// If the path contains '\' characters
-		else if (std::string(inputFile).find_last_of('\\') == std::string::npos)
-		{
-			// Check if the directory needs a trailing '\'
-			if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
-				return std::string(std::string(outputDirectory) + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) );
-
-			return std::string(std::string(outputDirectory) + std::string("\\") + std::string(inputFile).substr(std::string(inputFile).find_last_of('\\') + 1) );
-		}
-
-		// Otherwise the input file does not contain a path
-		// Check if the directory needs a trailing '/'
-		if (std::string(outputDirectory).back() == '/' || std::string(outputDirectory).back() == '\\')
-			return std::string(std::string(outputDirectory) + std::string(inputFile) );
-
-		return std::string(std::string(outputDirectory) + std::string("/") + std::string(inputFile));
-	}
-
-	/// <summary>
-	/// Takes a cloud object and writes it to a PCD file.
-	/// </summary>
-    void cloud_cb (const CloudConstPtr& cloud)
-    {
-        if (frameCounter <= totalFrameNumber[fileCounter])
-        {
-            if ( frameCounter % FRAME_DATA_MOD == 0)
-            {
-                pcl::PCDWriter w;
-                sprintf_s (buf, "frame_%06d.pcd", frameCounter);
-                w.writeBinaryCompressed (buf, *cloud);
-                PCL_INFO ("Wrote a cloud with %lu (%ux%u) points in %s.\n",
-                          cloud->size (), cloud->width, cloud->height, buf);
-            }
-        }
-        ++frameCounter;
-    }
-    
-	/// <summary>
-	/// Makes a OpenNI2Grabber to read from the ONI file. As the file is read in cloud_cb
-	/// is called to write the data to a PCD file. After the file has been read the 
-	/// grabber is deleted.
-	/// </summary>          
-	void outputPointCloud(const int argc, const char** argv)
-	{
-        bool myStopBool = false;
-		const char* pointCloudOutputDirectory = argv[1];
-		char* pointCloudInputFile;
-		std::ofstream out;
-		
-        for (int j = 2; j < argc; j++)
-        {
-            myStopBool = false;
-			frameCounter = 0;
-			fileCounter = j - 2;
-			pointCloudInputFile = (char*)argv[j];
-			
-			pointCloudOutputPath = getOutputFilePath(pointCloudOutputDirectory, pointCloudInputFile);
-			out.open(pointCloudOutputPath);
-
-			// Writes a message to the console.
-            std::cout<< "Converting " << pointCloudInputFile <<" to PCD format.\n";
-        
-            // Initializes a grabber for the ONI file.
-            pcl::io::OpenNI2Grabber* grabber = new pcl::io::OpenNI2Grabber (argv[j]);
-
-            // Calls boost to set up writing to PCD
-            boost::function<void (const CloudConstPtr&) > f = boost::bind (&cloud_cb, _1);
-
-            // Callback to let the program know when the file has been written.
-            boost::signals2::connection c = grabber->registerCallback (f);
-            
-            // Do-while loop to read in all of the frames from the ONI file
-            while (myStopBool != true)
-            {
-                if ( frameCounter <= totalFrameNumber[fileCounter])
-                {
-                    grabber->start ();
-					boost::this_thread::sleep(boost::posix_time::seconds(1));
-                    if (frameCounter == totalFrameNumber[fileCounter] || (frameCounter + 50) >= totalFrameNumber[fileCounter])
-                    {
-                        myStopBool = true;
-                    }
-                }
-				else
-				{
-					myStopBool = true;
-				}
-            }
-        
-            PCL_INFO ("Successfully processed %d frames.\n", totalFrameNumber[fileCounter]);
-        
-            delete grabber;
-        }
-    }
-
-    /// <summary>
-	/// This is a dummy example to show the use of writing a pcl file
-	/// that contains a 5x2 cloud with random values
-	/// Code taken from here:
-	/// http://pointclouds.org/documentation/tutorials/writing_pcd.php#writing-pcd
-	/// </summary>
-	void createDummyPointCloud()
-	{
-		pcl::PointCloud<pcl::PointXYZ> cloud;
-
-		// Fill in the cloud data
-		cloud.width = 5;
-		cloud.height = 2;
-		cloud.is_dense = false;
-		cloud.points.resize(cloud.width * cloud.height);
-        
-		for (size_t i = 0; i < cloud.points.size(); ++i)
-		{
-			cloud.points[i].x = 1024 * rand() / (RAND_MAX + 1.0f);
-			cloud.points[i].y = 1024 * rand() / (RAND_MAX + 1.0f);
-			cloud.points[i].z = 1024 * rand() / (RAND_MAX + 1.0f);
-		}
-
-		pcl::io::savePCDFileASCII("test_pcd.pcd", cloud);
-		std::cerr << "Saved " << cloud.points.size() << " data points to test_pcd.pcd." << std::endl;
-
-		for (size_t i = 0; i < cloud.points.size(); ++i)
-			std::cerr << "    " << cloud.points[i].x << " " << cloud.points[i].y << " " << cloud.points[i].z << std::endl;
+		std::cout << "Oni data output complete.\n";
 	}
 
 	/// <summary>
