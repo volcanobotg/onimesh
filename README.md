@@ -99,6 +99,7 @@ onimesh is built with the following dependencies
     oniInputFiles - One or more .oni input files
 
 ##### Important Usage Notes:
+* Running OM and the GUI on Windows has shown that Avast Antivirus Deep Screen will block the program indefinitely. For this reason, Avast Antivirus Deep Screen needs to be disabled for OM and the GUI to function properly. Testing with other antivirus software has not been conducted, and thus is not confirmed as being compatible with OM. In the event that starting OM or the GUI hangs indefinitely, disable your antivirus software and try running the application again.
 * Directory paths may contain '\' or '/' characters
 * At least one input file is required. Multiple input files need to be space delimited
   * Example: `onimesh c:\onimeshOutputDir\ c:\onimeshInputFiles\inputFile1.oni c:\onimeshInputFiles\inputFile2.oni`
